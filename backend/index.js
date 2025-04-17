@@ -7,7 +7,14 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173' })); // Allow frontend origin
+// app.use(cors({ origin: 'http://localhost:5173' })); // Allow frontend origin
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://restaurant-qr-ordering-system-five.vercel.app/'
+  ]
+}));
+
 app.use(express.json());
 
 // MongoDB Connection
@@ -29,4 +36,4 @@ app.get('/', (req, res) => res.send('API is running'));
 
 // Start Server
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
