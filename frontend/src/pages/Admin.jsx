@@ -6,7 +6,7 @@ const Admin = () => {
   const [menu, setMenu] = useState([]);
 
   useEffect(() => {
-    api.get('/menu').then((res) => setMenu(res.data)).catch((err) => console.error(err));
+    api.get('/api/menu').then((res) => setMenu(res.data)).catch((err) => console.error(err));
   }, []);
 
   const addMenuItem = (item) => {
@@ -23,7 +23,7 @@ const Admin = () => {
           <div key={item._id} className="border p-4 rounded">
             <h3 className="text-lg font-bold">{item.name}</h3>
             <p>{item.description}</p>
-            <p>${item.price}</p>
+            <p>Ksh. {item.price}</p>
             <p>Category: {item.category}</p>
             {item.image && <img src={item.image} alt={item.name} className="w-full h-40 object-cover mt-2" />}
           </div>

@@ -8,7 +8,7 @@ const MenuItem = ({ item, onAddToCart }) => {
       )}
       <h2 className="text-xl font-semibold">{item.name}</h2>
       <p className="text-gray-600">{item.description}</p>
-      <p className="text-lg font-bold">${item.price}</p>
+      <p className="text-lg font-bold">Ksh. {item.price}</p>
       <button
         onClick={() => onAddToCart(item)}
         className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"

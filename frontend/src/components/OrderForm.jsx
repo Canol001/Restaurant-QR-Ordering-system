@@ -13,7 +13,7 @@ const OrderForm = ({ onAdd }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/menu', form);
+      const res = await api.post('/api/menu', form);
       onAdd(res.data);
       setForm({ name: '', description: '', price: '', category: '', image: '' });
       alert('Menu item added!');

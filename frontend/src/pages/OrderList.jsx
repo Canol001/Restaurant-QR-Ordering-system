@@ -5,12 +5,12 @@ const OrderList = () => {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    api.get('/orders').then((res) => setOrders(res.data)).catch((err) => console.error(err));
+    api.get('/api/orders').then((res) => setOrders(res.data)).catch((err) => console.error(err));
   }, []);
 
   const updateStatus = async (id, status) => {
     try {
-      const res = await api.put(`/orders/${id}`, { status });
+      const res = await api.put(`/api/orders/${id}`, { status });
       setOrders(orders.map((order) => (order._id === id ? res.data : order)));
       alert(`Order marked as ${status}`);
     } catch (error) {
@@ -33,7 +33,7 @@ const OrderList = () => {
               Items:{' '}
               {order.items.map((item) => `${item.name} x${item.quantity}`).join(', ')}
             </p>
-            <p>Total: ${order.total.toFixed(2)}</p>
+            <p>Total: Ksh. {order.total.toFixed(2)}</p>
             <div className="mt-2">
               <button
                 onClick={() => updateStatus(order._id, 'Preparing')}

@@ -11,7 +11,7 @@ const Menu = () => {
   const tableId = new URLSearchParams(location.search).get('table') || 'Unknown';
 
   useEffect(() => {
-    api.get('/menu').then((res) => setMenu(res.data)).catch((err) => console.error(err));
+    api.get('/api/menu').then((res) => setMenu(res.data)).catch((err) => console.error(err));
   }, []);
 
   const addToCart = (item) => {
