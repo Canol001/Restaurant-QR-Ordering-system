@@ -6,14 +6,26 @@ const Cart = ({ cart, setCart, tableId }) => {
 
   const submitOrder = async () => {
     try {
+      // Log the data being submitted
+      console.log('Submitting order with data:', {
+        tableId,
+        items: cart,
+        total
+      });
+  
+      // Make the POST request to submit the order
       await api.post('/api/orders', { tableId, items: cart, total });
+  
+      // Clear the cart and show success alert
       setCart([]);
       alert('Order submitted successfully!');
     } catch (error) {
+      // Handle any errors
       alert('Error submitting order');
       console.error(error);
     }
   };
+  
 
   const updateQuantity = (index, quantity) => {
     const newCart = [...cart];
