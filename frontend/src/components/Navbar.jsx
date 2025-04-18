@@ -84,6 +84,19 @@ const Navbar = () => {
                 Orders
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to="/welcome"
+                className={({ isActive }) =>
+                  `block py-2 px-4 hover:bg-gray-700 rounded ${
+                    isActive ? 'bg-gray-700' : ''
+                  }`
+                }
+                onClick={() => setIsOpen(false)}
+              >
+                Scan
+              </NavLink>
+            </li>
           </ul>
         </div>
       </div>
