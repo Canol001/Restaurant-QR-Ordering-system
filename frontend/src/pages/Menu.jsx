@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../api';
 import Cart from '../components/Cart';
@@ -32,11 +32,15 @@ const Menu = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Menu (Table {tableId})</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {menu.map((item) => (
-          <MenuItem key={item._id} item={item} onAddToCart={addToCart} />
-        ))}
-      </div>
+      {menu.length === 0 ? (
+        <p className="text-gray-500">No menu items available.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {menu.map((item) => (
+            <MenuItem key={item._id} item={item} onAddToCart={addToCart} />
+          ))}
+        </div>
+      )}
       <Cart cart={cart} setCart={setCart} tableId={tableId} />
     </div>
   );
