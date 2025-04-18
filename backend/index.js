@@ -8,13 +8,13 @@ const app = express();
 
 // Middleware
 // app.use(cors({ origin: 'http://localhost:5173' })); // Allow frontend origin
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://restaurant-qr-ordering-system-mvf7hqav6.vercel.app/'
-  ]
-}));
-
+// app.use(cors({
+//   origin: [
+//     'http://localhost:5173',
+//     'https://restaurant-qr-ordering-system-mvf7hqav6.vercel.app/'
+//   ]
+// }));
+app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
