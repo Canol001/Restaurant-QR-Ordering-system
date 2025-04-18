@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Admin from './pages/Admin';
 import Menu from './pages/Menu';
 import OrderList from './pages/OrderList';
+import Welcome from './pages/Welcome';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Navbar />
         <main className="flex-grow">
           <Routes>
+          <Route path="/welcome" element={<Welcome />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/orders" element={<OrderList />} />
