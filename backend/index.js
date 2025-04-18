@@ -11,7 +11,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://restaurant-qr-ordering-system-five.vercel.app/'
+    'https://restaurant-qr-ordering-system-mvf7hqav6.vercel.app/'
   ]
 }));
 
