@@ -23,4 +23,37 @@ router.post('/', async (req, res) => {
   }
 });
 
+// ✅ Update a menu item by ID
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedItem = await Menu.findByIdAndUpdate(req.params.id, req.body, {
+      new: true, // return the updated document
+      runValidators: true,
+    });
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Delete a menu item by ID
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedItem = await Menu.findByIdAndDelete(req.params.id);
+
+    if (!deletedItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+
+    res.json({ message: 'Menu item deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

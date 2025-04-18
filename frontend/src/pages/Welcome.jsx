@@ -13,15 +13,17 @@ const Welcome = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [requirements, setRequirements] = useState('');
   const [scanError, setScanError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const location = useLocation();
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const codeReaderRef = useRef(null);
 
-  // Extract tableId from URL
+  const itemsPerPage = 6;
   const tableId = new URLSearchParams(location.search).get('table') || null;
 
-  // Fetch menu items if tableId is present
+  // Fetch menu items
   useEffect(() => {
     if (!tableId) {
       setLoading(false);
@@ -41,7 +43,7 @@ const Welcome = () => {
       });
   }, [tableId]);
 
-  // Setup QR code scanner
+  // QR code scanner setup
   useEffect(() => {
     if (tableId || !videoRef.current) return;
 
@@ -71,7 +73,6 @@ const Welcome = () => {
         console.error(err);
       });
 
-    // Cleanup on unmount
     return () => {
       if (codeReaderRef.current) {
         codeReaderRef.current.reset();
@@ -80,7 +81,7 @@ const Welcome = () => {
     };
   }, [tableId, navigate]);
 
-  // Add item to cart with requirements
+  // Cart management
   const addToCart = (item) => {
     const newItem = {
       ...item,
@@ -108,24 +109,27 @@ const Welcome = () => {
     setRequirements('');
   };
 
-  // Handle item selection for requirements
   const handleSelectItem = (item) => {
     setSelectedItem(item);
     setRequirements('');
   };
 
-  // Close requirements modal
   const closeModal = () => {
     setSelectedItem(null);
     setRequirements('');
   };
 
-  // Navigate to cart
   const goToCart = () => {
     navigate('/cart', { state: { cart, tableId } });
   };
 
-  // Render QR scanner if no tableId
+  const totalPages = Math.ceil(menu.length / itemsPerPage);
+  const paginatedMenu = menu.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // QR Scanner Page
   if (!tableId) {
     return (
       <div className="container mx-auto p-4 text-center">
@@ -137,7 +141,6 @@ const Welcome = () => {
             className="w-full rounded-lg shadow-lg"
             style={{ maxHeight: '400px' }}
           />
-          {/* Scanning Overlay */}
           <div className="absolute inset-0 border-4 border-transparent border-t-blue-500 border-b-blue-500 animate-pulse pointer-events-none" />
         </div>
         {scanError && <p className="text-red-500 mt-4">{scanError}</p>}
@@ -151,7 +154,7 @@ const Welcome = () => {
     );
   }
 
-  // Render loading state
+  // Loading
   if (loading) {
     return (
       <div className="container mx-auto p-4 text-center">
@@ -160,7 +163,7 @@ const Welcome = () => {
     );
   }
 
-  // Render error state
+  // Error
   if (error) {
     return (
       <div className="container mx-auto p-4 text-center">
@@ -175,7 +178,7 @@ const Welcome = () => {
     );
   }
 
-  // Render welcome page with menu
+  // Main Page
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Welcome to Table {tableId}!</h1>
@@ -183,22 +186,63 @@ const Welcome = () => {
 
       {/* Menu Items */}
       {menu.length === 0 ? (
-        <p className="text-gray-500">No menu items available.</p>
+        <p className="text-gray-500">Loading menu...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-          {menu.map((item) => (
-            <div key={item._id} className="relative">
-              <MenuItem item={item} onAddToCart={() => handleSelectItem(item)} />
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            {paginatedMenu.map((item) => (
+              <div key={item._id} className="relative">
+                <MenuItem item={item} onAddToCart={() => handleSelectItem(item)} />
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center space-x-4 mt-4">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              className={`px-4 py-2 rounded ${
+                currentPage === 1
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+            >
+              Prev
+            </button>
+            <span className="text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              className={`px-4 py-2 rounded ${
+                currentPage === totalPages
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
 
       {/* Requirements Modal */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Customize {selectedItem.name}</h2>
+            {selectedItem.image && (
+              <img
+                src={selectedItem.image}
+                alt={selectedItem.name}
+                className="w-full h-48 object-cover rounded mb-4"
+              />
+            )}
+            <h2 className="text-xl font-bold mb-2">Customize {selectedItem.name}</h2>
+            {selectedItem.description && (
+              <p className="text-gray-600 mb-4">{selectedItem.description}</p>
+            )}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -233,10 +277,10 @@ const Welcome = () => {
         </div>
       )}
 
-      {/* Cart Preview */}
+      {/* Cart */}
       <Cart cart={cart} setCart={setCart} tableId={tableId} />
 
-      {/* Proceed to Cart */}
+      {/* Go to Cart Button */}
       {cart.length > 0 && (
         <div className="mt-6 text-center">
           <button

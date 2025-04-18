@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import api from '../api';
+import React, { useEffect, useState } from 'react';
 
-const OrderForm = ({ onAdd }) => {
+const OrderForm = ({ onAdd, initialData }) => {
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -10,15 +9,29 @@ const OrderForm = ({ onAdd }) => {
     image: '',
   });
 
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        name: initialData.name || '',
+        description: initialData.description || '',
+        price: initialData.price || '',
+        category: initialData.category || '',
+        image: initialData.image || '',
+      });
+    }
+  }, [initialData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await api.post('/api/menu', form);
-      onAdd(res.data);
+      await onAdd(form); // whether add or edit, Admin component handles it
       setForm({ name: '', description: '', price: '', category: '', image: '' });
-      alert('Menu item added!');
+
+      if (!initialData) alert('Menu item added!');
+      else alert('Menu item updated!');
     } catch (error) {
-      alert('Error adding menu item');
+      alert('Error submitting menu item');
       console.error(error);
     }
   };
@@ -72,8 +85,11 @@ const OrderForm = ({ onAdd }) => {
           className="border p-2 w-full rounded"
         />
       </div>
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        Add Menu Item
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        {initialData ? 'Update Menu Item' : 'Add Menu Item'}
       </button>
     </form>
   );

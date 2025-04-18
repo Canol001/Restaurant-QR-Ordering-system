@@ -59,20 +59,32 @@ const Menu = () => {
           </div>
 
           {/* Pagination controls */}
-          <div className="flex justify-center mt-6 space-x-2">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageChange(index + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === index + 1
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
+          <div className="flex justify-center items-center space-x-4 mt-4">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              className={`px-4 py-2 rounded ${
+                currentPage === 1
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+            >
+              Prev
+            </button>
+            <span className="text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              className={`px-4 py-2 rounded ${
+                currentPage === totalPages
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+            >
+              Next
+            </button>
           </div>
         </>
       )}
