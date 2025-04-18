@@ -1,10 +1,28 @@
 import React from 'react';
 
+const defaultImage = '../assets/menu.jpg'; // Path to your default image
+
 const MenuItem = ({ item, onAddToCart }) => {
+  const handleImageError = (e) => {
+    e.target.src = defaultImage;
+  };
+
   return (
     <div className="border p-4 rounded shadow">
       {item.image && (
-        <img src={item.image} alt={item.name} className="w-full h-40 object-cover mb-2" />
+        <img
+          src={item.image}
+          alt={item.name}
+          className="w-full h-40 object-cover mb-2"
+          onError={handleImageError}
+        />
+      )}
+      {!item.image && (
+        <img
+          src={defaultImage}
+          alt="Default item"
+          className="w-full h-40 object-cover mb-2"
+        />
       )}
       <h2 className="text-xl font-semibold">{item.name}</h2>
       <p className="text-gray-600">{item.description}</p>

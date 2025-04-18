@@ -12,11 +12,11 @@ function App() {
         <Navbar />
         <main className="flex-grow">
           <Routes>
-          <Route path="/welcome" element={<Welcome />} />
+            <Route path="/welcome" element={<Welcome />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/orders" element={<OrderList />} />
-            <Route path="/" element={<Menu />} />
+            <Route path="/" element={<Welcome />} />
             <Route path="*" element={<h1 className="text-center mt-10">404: Page Not Found</h1>} />
           </Routes>
         </main>
