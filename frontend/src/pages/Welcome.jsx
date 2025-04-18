@@ -29,7 +29,7 @@ const Welcome = () => {
     }
 
     api
-      .get('/menu')
+      .get('/api/menu')
       .then((res) => {
         setMenu(res.data);
         setLoading(false);
