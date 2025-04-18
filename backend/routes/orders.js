@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get orders by user ID
+// Get orders by user ID (for user-specific order history)
 router.get('/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
