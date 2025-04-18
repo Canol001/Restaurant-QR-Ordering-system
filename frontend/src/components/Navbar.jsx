@@ -1,24 +1,33 @@
+import { ShoppingCart } from 'lucide-react'; // Ensure lucide-react is installed
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
+    <nav className="bg-gray-800 text-white relative">
+      {/* Top navbar section */}
+      <div className="container mx-auto flex justify-between items-center p-4 relative z-30">
         {/* Logo */}
         <NavLink to="/" className="text-xl font-bold">
           Restaurant QR
         </NavLink>
 
-        {/* Hamburger Menu (Mobile) */}
+        {/* Orders Icon (only on small screens) */}
+        <NavLink
+          to="/orders"
+          className="md:hidden absolute left-4 top-4"
+          title="Orders"
+        >
+          <ShoppingCart className="w-6 h-6 text-white" />
+        </NavLink>
+
+        {/* Hamburger Menu */}
         <button
-          className="md:hidden focus:outline-none"
+          className="md:hidden focus:outline-none z-20"
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
@@ -38,68 +47,97 @@ const Navbar = () => {
           </svg>
         </button>
 
-        {/* Menu Links */}
-        <div
-          className={`md:flex md:items-center md:space-x-4 ${
-            isOpen ? 'block' : 'hidden'
-          } w-full md:w-auto`}
-        >
-          <ul className="md:flex md:space-x-4 flex-col md:flex-row mt-4 md:mt-0">
-            <li>
-              <NavLink
-                to="/menu"
-                className={({ isActive }) =>
-                  `block py-2 px-4 hover:bg-gray-700 rounded ${
-                    isActive ? 'bg-gray-700' : ''
-                  }`
-                }
-                onClick={() => setIsOpen(false)}
-              >
-                Menu
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/admin"
-                className={({ isActive }) =>
-                  `block py-2 px-4 hover:bg-gray-700 rounded ${
-                    isActive ? 'bg-gray-700' : ''
-                  }`
-                }
-                onClick={() => setIsOpen(false)}
-              >
-                Admin
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/orders"
-                className={({ isActive }) =>
-                  `block py-2 px-4 hover:bg-gray-700 rounded ${
-                    isActive ? 'bg-gray-700' : ''
-                  }`
-                }
-                onClick={() => setIsOpen(false)}
-              >
-                Orders
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/welcome"
-                className={({ isActive }) =>
-                  `block py-2 px-4 hover:bg-gray-700 rounded ${
-                    isActive ? 'bg-gray-700' : ''
-                  }`
-                }
-                onClick={() => setIsOpen(false)}
-              >
-                Scan
-              </NavLink>
-            </li>
-          </ul>
-        </div>
+        {/* Menu Links for md and above */}
+        <ul className="hidden md:flex md:space-x-4 items-center">
+          <li>
+            <NavLink
+              to="/menu"
+              className={({ isActive }) =>
+                `block py-2 px-4 hover:bg-gray-700 rounded ${
+                  isActive ? 'bg-gray-700' : ''
+                }`
+              }
+            >
+              Menu
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `block py-2 px-4 hover:bg-gray-700 rounded ${
+                  isActive ? 'bg-gray-700' : ''
+                }`
+              }
+            >
+              Admin
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/orders"
+              className={({ isActive }) =>
+                `block py-2 px-4 hover:bg-gray-700 rounded ${
+                  isActive ? 'bg-gray-700' : ''
+                }`
+              }
+            >
+              Orders
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/welcome"
+              className={({ isActive }) =>
+                `block py-2 px-4 hover:bg-gray-700 rounded ${
+                  isActive ? 'bg-gray-700' : ''
+                }`
+              }
+            >
+              Scan
+            </NavLink>
+          </li>
+        </ul>
       </div>
+
+      {/* Mobile Menu Dropdown (separate block) */}
+      {isOpen && (
+        <div className="md:hidden bg-gray-800 px-4 py-2 space-y-2 absolute top-full left-0 w-full z-20">
+          <NavLink
+            to="/menu"
+            onClick={() => setIsOpen(false)}
+            className={({ isActive }) =>
+              `block py-2 px-4 rounded hover:bg-gray-700 ${
+                isActive ? 'bg-gray-700' : ''
+              }`
+            }
+          >
+            Menu
+          </NavLink>
+          <NavLink
+            to="/admin"
+            onClick={() => setIsOpen(false)}
+            className={({ isActive }) =>
+              `block py-2 px-4 rounded hover:bg-gray-700 ${
+                isActive ? 'bg-gray-700' : ''
+              }`
+            }
+          >
+            Admin
+          </NavLink>
+          <NavLink
+            to="/welcome"
+            onClick={() => setIsOpen(false)}
+            className={({ isActive }) =>
+              `block py-2 px-4 rounded hover:bg-gray-700 ${
+                isActive ? 'bg-gray-700' : ''
+              }`
+            }
+          >
+            Scan
+          </NavLink>
+        </div>
+      )}
     </nav>
   );
 };

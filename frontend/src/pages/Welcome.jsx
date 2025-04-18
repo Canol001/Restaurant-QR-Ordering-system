@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api';
 import Cart from '../components/Cart';
 import MenuItem from '../components/MenuItem';
+import { getSessionId, setTableId } from '../utils/session';
 
 const Welcome = () => {
   const [menu, setMenu] = useState([]);
@@ -21,7 +22,8 @@ const Welcome = () => {
   const codeReaderRef = useRef(null);
 
   const itemsPerPage = 6;
-  const tableId = new URLSearchParams(location.search).get('table') || null;
+  const queryTableId = new URLSearchParams(location.search).get('table');
+  const [tableId, setTableIdState] = useState(queryTableId || localStorage.getItem('tableId') || null);
 
   // Fetch menu items
   useEffect(() => {
@@ -55,6 +57,8 @@ const Welcome = () => {
             const url = new URL(result.getText());
             const scannedTableId = new URLSearchParams(url.search).get('table');
             if (url.pathname === '/welcome' && scannedTableId) {
+              setTableIdState(scannedTableId);
+              setTableId(scannedTableId); // Save the scanned tableId to localStorage
               navigate(`/welcome?table=${scannedTableId}`);
             } else {
               setScanError('Invalid QR code. Please scan a valid table QR code.');
@@ -120,7 +124,8 @@ const Welcome = () => {
   };
 
   const goToCart = () => {
-    navigate('/cart', { state: { cart, tableId } });
+    const sessionId = getSessionId(); // Ensure sessionId is passed along
+    navigate('/cart', { state: { cart, tableId, sessionId } });
   };
 
   const totalPages = Math.ceil(menu.length / itemsPerPage);
@@ -251,46 +256,31 @@ const Welcome = () => {
             >
               <label className="block mb-2">Special Requirements</label>
               <textarea
+                className="w-full p-2 border rounded mb-4"
                 value={requirements}
                 onChange={(e) => setRequirements(e.target.value)}
-                placeholder="E.g., No onions, extra cheese"
-                className="w-full p-2 border rounded mb-4"
-                rows="4"
               />
-              <div className="flex space-x-2">
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Add to Cart
-                </button>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Add to Cart
+              </button>
             </form>
+            <button
+              onClick={closeModal}
+              className="mt-4 text-red-500 hover:text-red-700"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
 
       {/* Cart */}
-      <Cart cart={cart} setCart={setCart} tableId={tableId} />
-
-      {/* Go to Cart Button */}
-      {cart.length > 0 && (
-        <div className="mt-6 text-center">
-          <button
-            onClick={goToCart}
-            className="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600"
-          >
-            Proceed to Cart
-          </button>
-        </div>
-      )}
+      <div className="mt-8">
+        <Cart cart={cart} onGoToCart={goToCart} />
+      </div>
     </div>
   );
 };

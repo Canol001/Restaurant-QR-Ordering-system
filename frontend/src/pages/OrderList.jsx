@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
 
-const OrderList = () => {
+const OrderList = ({ userId }) => {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    api.get('/api/orders').then((res) => setOrders(res.data)).catch((err) => console.error(err));
-  }, []);
+    // Fetch orders for a specific user using their userId
+    api.get(`/api/orders/${userId}`)
+      .then((res) => setOrders(res.data))
+      .catch((err) => console.error('Error fetching orders:', err));
+  }, [userId]); // Re-fetch orders when userId changes
 
   const updateStatus = async (id, status) => {
     try {
@@ -21,7 +24,7 @@ const OrderList = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Orders</h1>
+      <h1 className="text-2xl font-bold mb-4">Your Orders</h1>
       {orders.length === 0 ? (
         <p className="text-gray-500">No orders yet.</p>
       ) : (
