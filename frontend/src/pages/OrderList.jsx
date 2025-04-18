@@ -34,7 +34,7 @@ const OrderList = () => {
                 Items:{' '}
                 {order.items.map((item) => `${item.name} x${item.quantity}`).join(', ')}
               </p>
-              <p className="font-semibold">Total: ${order.total.toFixed(2)}</p>
+              <p className="font-semibold">Total: Ksh. {order.total.toFixed(2)}</p>
               <div className="mt-3 flex space-x-2">
                 <button
                   onClick={() => updateStatus(order._id, 'Preparing')}

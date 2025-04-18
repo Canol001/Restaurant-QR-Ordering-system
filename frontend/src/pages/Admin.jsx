@@ -26,7 +26,7 @@ const Admin = () => {
             <div key={item._id} className="border p-4 rounded shadow">
               <h3 className="text-lg font-bold">{item.name}</h3>
               <p className="text-gray-600">{item.description}</p>
-              <p className="text-lg font-semibold">${item.price}</p>
+              <p className="text-lg font-semibold">Ksh. {item.price}</p>
               <p className="text-sm text-gray-500">Category: {item.category || 'None'}</p>
               {item.image && (
                 <img src={item.image} alt={item.name} className="w-full h-40 object-cover mt-2 rounded" />
