@@ -64,7 +64,7 @@ restaurant-qr-ordering/
 1. **Clone the repo**
 
 ```bash
-git clone [https://github.com/your-username/qr-table-order.git](https://github.com/Canol001/Restaurant-QR-Ordering-system.git)
+git clone https://github.com/Canol001/Restaurant-QR-Ordering-system.git
 cd qr-table-order
 ```
 
