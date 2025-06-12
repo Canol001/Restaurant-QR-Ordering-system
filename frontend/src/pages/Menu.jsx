@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api';
 import Cart from '../components/Cart';
 import MenuItem from '../components/MenuItem';
@@ -10,15 +10,30 @@ const Menu = () => {
   const [menu, setMenu] = useState([]);
   const [cart, setCart] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const location = useLocation();
-  const tableId = new URLSearchParams(location.search).get('table') || 'Unknown';
 
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tableId = new URLSearchParams(location.search).get('table');
+
+  // 🛑 Redirect if no table ID
   useEffect(() => {
-    api
-      .get('/api/menu')
-      .then((res) => setMenu(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+    if (!tableId) {
+      navigate('/welcome', {
+        replace: true,
+        state: { error: 'Please scan your table QR to continue.' }
+      });
+    }
+  }, [tableId, navigate]);
+
+  // ✅ Fetch menu
+  useEffect(() => {
+    if (tableId) {
+      api
+        .get('/api/menu')
+        .then((res) => setMenu(res.data))
+        .catch((err) => console.error(err));
+    }
+  }, [tableId]);
 
   const addToCart = (item) => {
     const existingItem = cart.find((cartItem) => cartItem._id === item._id);
@@ -35,7 +50,6 @@ const Menu = () => {
     }
   };
 
-  // Pagination logic
   const totalPages = Math.ceil(menu.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentItems = menu.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -43,6 +57,16 @@ const Menu = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+  // 🔐 Fallback display (just in case)
+  if (!tableId) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center p-4">
+        <h2 className="text-2xl font-semibold text-red-600 mb-4">Access Denied</h2>
+        <p className="text-gray-600">You must scan your table QR code to view the menu.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">

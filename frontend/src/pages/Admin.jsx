@@ -1,13 +1,25 @@
+import jsPDF from 'jspdf';
+import { QrCode } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { useEffect, useState } from 'react';
 import api from '../api';
 import placeholderImage from '../assets/placehoder.jpg';
 import OrderForm from '../components/OrderForm';
+import { useNavigate } from 'react-router-dom';
+import OrderSidebar from '../components/OrderSidebar';
+
+
 
 const Admin = () => {
   const [menu, setMenu] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [editItem, setEditItem] = useState(null); // ✅ Track the item being edited
+  const [editItem, setEditItem] = useState(null);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [tableCount, setTableCount] = useState(1);
+  const [qrCodes, setQrCodes] = useState([]);
+  const [showOrders, setShowOrders] = useState(false);
+
 
   const itemsPerPage = 6;
   const totalPages = Math.ceil(menu.length / itemsPerPage);
@@ -15,6 +27,15 @@ const Admin = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken'); // Adjust if you're using a different key
+    navigate('/login');
+  };
 
   useEffect(() => {
     fetchMenu();
@@ -29,7 +50,6 @@ const Admin = () => {
 
   const addMenuItem = (item) => {
     if (editItem) {
-      // Editing existing item
       api
         .put(`/api/menu/${editItem._id}`, item)
         .then((res) => {
@@ -41,7 +61,6 @@ const Admin = () => {
         })
         .catch((err) => console.error(err));
     } else {
-      // Adding new item
       api
         .post('/api/menu', item)
         .then((res) => {
@@ -72,11 +91,80 @@ const Admin = () => {
     e.target.src = placeholderImage;
   };
 
+  const downloadPDF = () => {
+    const qrElements = document.querySelectorAll('#qrGrid canvas');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'a4',
+    });
+
+    const margin = 40;
+    const qrSize = 120;
+    const padding = 20;
+    const columns = 4;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    let x = margin;
+    let y = margin;
+    let count = 0;
+
+    qrElements.forEach((canvas, index) => {
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', x, y, qrSize, qrSize);
+
+      pdf.setFontSize(10);
+      pdf.text(`Table ${index + 1}`, x + qrSize / 2, y + qrSize + 12, {
+        align: 'center',
+      });
+
+      count++;
+      if (count % columns === 0) {
+        x = margin;
+        y += qrSize + 30;
+      } else {
+        x += qrSize + padding;
+      }
+
+      if (y + qrSize + 30 > pageHeight - margin) {
+        pdf.addPage();
+        x = margin;
+        y = margin;
+      }
+    });
+
+    pdf.save('table_qrcodes.pdf');
+  };
+
+
   return (
     <div className="container mx-auto p-4 relative">
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <button
+  onClick={() => setShowOrders(true)}
+  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+>
+  View Orders
+</button>
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Logout
+        </button>
+      </div>
 
-      {/* Floating Add Button */}
+      <button
+        onClick={() => setShowQRModal(true)}
+        className="fixed bottom-24 right-6 bg-green-600 text-white rounded-full w-14 h-14 text-2xl flex items-center justify-center shadow-lg hover:bg-green-700 z-50"
+        title="Generate Table QR Codes"
+      >
+        <QrCode className="w-6 h-6" />
+      </button>
+
+
       <button
         onClick={() => {
           setEditItem(null);
@@ -87,8 +175,10 @@ const Admin = () => {
       >
         +
       </button>
+      {showOrders && (
+        <OrderSidebar isOpen={showOrders} onClose={() => setShowOrders(false)} />
+      )}
 
-      {/* Modal with OrderForm */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
           <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
@@ -106,6 +196,73 @@ const Admin = () => {
             >
               &times;
             </button>
+          </div>
+        </div>
+      )}
+
+      {showQRModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
+            <h2 className="text-xl font-semibold mb-4">Generate Table QR Codes</h2>
+            <input
+              type="number"
+              min="1"
+              value={tableCount}
+              onChange={(e) => setTableCount(parseInt(e.target.value))}
+              className="w-full border px-3 py-2 mb-4 rounded"
+              placeholder="Enter number of tables"
+            />
+            <button
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              onClick={() => {
+                const newQRs = Array.from({ length: tableCount }, (_, i) => i + 1);
+                setQrCodes(newQRs);
+              }}
+            >
+              Generate
+            </button>
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+              onClick={() => {
+                setShowQRModal(false);
+                setQrCodes([]);
+              }}
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {qrCodes.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto relative">
+            <h3 className="text-lg font-bold mb-4">Table QR Codes</h3>
+            <div id="qrGrid" className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {qrCodes.map((tableNum) => (
+                <div key={tableNum} className="border p-2 text-center rounded shadow">
+                  <QRCodeCanvas
+                    value={`https://restaurant-qr-ordering-system.onrender.com/welcome?table=${tableNum}`}
+                    size={128}
+                  />
+                  <p className="mt-2 font-medium">Table {tableNum}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={downloadPDF}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Download PDF
+              </button>
+              <button
+                onClick={() => setQrCodes([])}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -130,17 +287,16 @@ const Admin = () => {
                   onError={handleImageError}
                   className="w-full h-40 object-cover mt-2 rounded"
                 />
-
                 <div className="flex justify-end space-x-2 mt-3">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="text-sm px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
+                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteMenuItem(item._id)}
-                    className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                   >
                     Delete
                   </button>
@@ -149,33 +305,20 @@ const Admin = () => {
             ))}
           </div>
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center items-center space-x-4 mt-6">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 rounded ${
-                currentPage === 1
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
-              }`}
-            >
-              Prev
-            </button>
-            <span className="text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 rounded ${
-                currentPage === totalPages
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
-              }`}
-            >
-              Next
-            </button>
+          <div className="flex justify-center mt-4 space-x-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === i + 1
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
           </div>
         </>
       )}

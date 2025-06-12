@@ -1,6 +1,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid'); // For unique order ID generation
 const Order = require('../models/Order');
+const verifyAdmin = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -56,7 +57,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update order status (for example, from 'pending' to 'completed')
+// Admin-only orders route
+router.get('/admin/orders', verifyAdmin, (req, res) => {
+  // Add admin-only logic if needed
+  res.status(200).json({ message: 'Admin access granted to orders.' });
+});
+
+// Update order status (e.g., from 'pending' to 'completed')
 router.put('/:id', async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(
@@ -70,5 +77,49 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// PATCH: Update only the status of an order
+router.patch('/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ message: 'Order status updated successfully', order });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE: Delete an order
+router.delete('/:id', async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ message: 'Order deleted successfully', order });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Express backend (Node.js)
+router.post('/sync', async (req, res) => {
+  const { orderIds } = req.body;
+  if (!Array.isArray(orderIds)) {
+    return res.status(400).json({ error: 'Invalid orderIds' });
+  }
+
+  try {
+    const orders = await Order.find({ userId: { $in: orderIds } });
+    res.json(orders);
+  } catch (err) {
+    console.error('Sync error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 module.exports = router;

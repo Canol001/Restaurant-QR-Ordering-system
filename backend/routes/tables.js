@@ -27,4 +27,25 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/generate-batch', async (req, res) => {
+  try {
+    const { numberOfTables } = req.body;
+    const tableData = [];
+
+    for (let i = 1; i <= numberOfTables; i++) {
+      const url = `http://localhost:5173/menu?table=${i}`;
+      const qrCodeUrl = await QRCode.toDataURL(url);
+
+      const table = new Table({ tableId: i, qrCodeUrl });
+      await table.save();
+      tableData.push({ tableId: i, qrCodeUrl });
+    }
+
+    res.json(tableData);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;

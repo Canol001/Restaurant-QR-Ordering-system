@@ -31,6 +31,10 @@ app.use('/api/menu', require('./routes/menu'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/tables', require('./routes/tables'));
 
+
+const authRoute = require('./routes/auth');
+app.use('/api/auth', authRoute);
+
 // Test Route
 app.get('/', (req, res) => res.send('API is running'));
 
