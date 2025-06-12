@@ -7,7 +7,7 @@ const QRCode = require('qrcode');
 router.post('/', async (req, res) => {
   try {
     const { tableId } = req.body;
-    const url = `http://localhost:5173/menu?table=${tableId}`; // Update to deployed URL later
+    const url = `https://restaurant-qr-ordering-system.onrender.com/menu?table=${tableId}`; // Update to deployed URL later
     const qrCodeUrl = await QRCode.toDataURL(url);
     const table = new Table({ tableId, qrCodeUrl });
     await table.save();
@@ -33,7 +33,7 @@ router.post('/generate-batch', async (req, res) => {
     const tableData = [];
 
     for (let i = 1; i <= numberOfTables; i++) {
-      const url = `http://localhost:5173/menu?table=${i}`;
+      const url = `https://restaurant-qr-ordering-system.onrender.com/menu?table=${i}`;
       const qrCodeUrl = await QRCode.toDataURL(url);
 
       const table = new Table({ tableId: i, qrCodeUrl });

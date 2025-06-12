@@ -12,7 +12,7 @@ const OrderList = () => {
   const syncOrdersWithDB = async (storedOrders) => {
     try {
       const orderIds = storedOrders.map((order) => order.userId);
-      const res = await fetch('http://localhost:4000/api/orders/sync', {
+      const res = await fetch('https://rest-qr-order.onrender.com/api/orders/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderIds }),

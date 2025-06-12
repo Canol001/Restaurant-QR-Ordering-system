@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api';
 import Cart from '../components/Cart';
 import MenuItem from '../components/MenuItem';
-import { getSessionId, setTableId, getTableId } from '../utils/session';
+import { getSessionId, getTableId, setTableId } from '../utils/session';
 
 const ITEMS_PER_PAGE = 6;
 
