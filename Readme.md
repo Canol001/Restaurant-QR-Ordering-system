@@ -64,7 +64,7 @@ restaurant-qr-ordering/
 1. **Clone the repo**
 
 ```bash
-git clone https://github.com/your-username/qr-table-order.git
+git clone [https://github.com/your-username/qr-table-order.git](https://github.com/Canol001/Restaurant-QR-Ordering-system.git)
 cd qr-table-order
 ```
 
@@ -101,7 +101,7 @@ http://localhost:5173/welcome?table=5
 The QR code should encode a URL like:
 
 ```
-https://yourdomain.com/welcome?table=5
+https://restaurant-qr-ordering-system.onrender.com/welcome?table=5
 ```
 
 You can generate QR codes in bulk based on table numbers and print them to stick on tables.
